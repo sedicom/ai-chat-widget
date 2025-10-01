@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat Widget con Mia y Shortcuts</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/geist-font/1.0.0/fonts/geist-sans/style.min.css"/>
+  <style>
+    body {
+      font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      margin: 0; padding: 0;
+      background: transparent;
+      display: flex; justify-content: flex-end; align-items: flex-end;
+      height: 100vh; overflow: hidden;
+    }
+    /* Contenedor del widget */
+    #chat-widget-container {
+      position: fixed; bottom: 20px; right: 20px;
+      width: 90%; max-width: 350px;
+      height: 80%; max-height: 500px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1);
+      display: none; flex-direction: column;
+      z-index: 1000; overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    /* Header blanco con logo y texto azul */
+    #chat-widget-header {
+      background: #fff; color: #00416A;
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top-left-radius: 16px; border-top-right-radius: 16px;
+      border-bottom: 1px solid #ddd;
+    }
+    #chat-widget-header .title {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 600; font-size: 16px;
+    }
+    #chat-widget-header img { width: 24px; height: 24px; }
+    #chat-widget-header button {
+      background: transparent; border: none; color: #00416A;
+      font-size: 20px; cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    #chat-widget-header button:hover { transform: scale(1.1); }
+    #chat-widget-body {
+      flex: 1; padding: 20px;
+      overflow-y: auto; scroll-behavior: smooth;
+    }
+    #chat-widget-body p {
+      margin-bottom: 15px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px; line-height: 1.4;
+      word-wrap: break-word;
+    }
+    /* Shortcuts abajo */
+    .chat-shortcuts {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 16px;
+    }
+    .chat-shortcuts button {
+      background: #00416A;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .chat-shortcuts button:hover {
+      background: #005a87;
+    }
+    #chat-widget-footer {
+      padding: 16px;
+      border-top: 1px solid #ddd;
+      background: #f9f9f9;
+      display: flex; gap: 12px;
+    }
+    #chat-widget-input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+      font-size: 14px;
+      transition: border-color 0.2s ease;
+    }
+    #chat-widget-input:focus { border-color: #00416A; }
+    #chat-widget-send {
+      background: #00416A; color: #fff; border: none;
+      padding: 10px 20px; border-radius: 20px;
+      cursor: pointer; font-weight: 500;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+    #chat-widget-send:hover {
+      background: #005a87; transform: scale(1.05);
+    }
+    #chat-widget-send:active { transform: scale(0.95); }
+    /* Animación de escritura */
+    .typing-indicator {
+      display: flex; align-items: center;
+      padding: 0 16px; margin-bottom: 15px;
+      color: #00416A; font-size: 14px;
+    }
+    .typing-dots {
+      display: inline-block; margin-left: 8px;
+    }
+    .typing-dots span {
+      display: inline-block;
+      width: 4px; height: 4px;
+      background: #00416A; border-radius: 50%;
+      margin: 0 2px;
+      animation: blink 1.4s infinite ease-in-out;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+      0%,60%,100% { opacity: 0.3; }
+      30% { opacity: 1; }
+    }
+    /* Burbuja cerrada alargada */
+    #chat-widget-button {
+      position: fixed; bottom: 20px; right: 20px;
+      background: linear-gradient(135deg, #00416A 0%, #005a87 100%);
+      color: #fff; border: none;
+      padding: 12px 20px; border-radius: 25px;
+      cursor: pointer; font-size: 14px; font-weight: 500;
+      z-index: 1001;
+      box-shadow: 0 4px 20px rgba(0,4,106,0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #chat-widget-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 30px rgba(0,4,106,0.4);
+    }
+    /* Burbuja de saludo previa */
+    #chat-widget-greeting {
+      position: fixed; bottom: 90px; right: 20px;
+      width: 280px;
+      background: #fff;
+      border: 2px solid #00416A;
+      border-radius: 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      padding: 16px;
+      color: #00416A;
+      font-size: 14px;
+      line-height: 1.4;
+      z-index: 1002;
+    }
+    /* Flecha apuntando al botón */
+    #chat-widget-greeting::before {
+      content: "";
+      position: absolute;
+      bottom: -18px; right: 58px;
+      border-width: 18px 18px 0 18px;
+      border-style: solid;
+      border-color: #00416A transparent transparent transparent;
+    }
+    #chat-widget-greeting::after {
+      content: "";
+      position: absolute;
+      bottom: -16px; right: 58px;
+      border-width: 16px 16px 0 16px;
+      border-style: solid;
+      border-color: #fff transparent transparent transparent;
+    }
+    #chat-widget-greeting .greeting-close {
+      position: absolute; top: 8px; right: 8px;
+      background: transparent; border: none;
+      color: #00416A; font-size: 16px;
+      cursor: pointer;
+    }
+    /* Responsive móvil */
+    @media (max-width: 480px) {
+      #chat-widget-container {
+        width: 100%; height: 100%;
+        bottom: 0; right: 0; border-radius: 0;
+      }
+      #chat-widget-body { padding: 16px; }
+      #chat-widget-footer { padding: 12px; }
+      #chat-widget-greeting {
+        top: 20px; bottom: auto;
+        right: 20px;
+        width: calc(100% - 40px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Burbuja de saludo previa -->
+  <div id="chat-widget-greeting">
+    <button class="greeting-close" onclick="closeGreeting()">✕</button>
+    <p>👋  Soy Mia, asistente de IA de Sedicom. ¿Puedo ayudarte?</p>
+  </div>
+
+  <!-- Botón disparador cerrado -->
+  <button id="chat-widget-button">Habla con Mia</button>
+
+  <!-- Chat Widget -->
+  <div id="chat-widget-container">
+    <div id="chat-widget-header">
+      <div class="title">
+        <img src="https://cloud.sedicom.es/s/wTQozTH3inMKSHQ/preview" alt="Logo Sedicom"/>
+        <span id="chat-widget-title">Asistente IA Sedicom</span>
+      </div>
+      <button onclick="closeChatWidget()">✕</button>
+    </div>
+    <div id="chat-widget-body">
+      <p style="margin-bottom:20px;color:#fff;background:#00416A;
+                padding:12px 16px;border-radius:12px;">
+        <strong>Hola 👋🏻, ¿puedo ayudarte?</strong>
+      </p>
+    </div>
+
+    <!-- Shortcuts en la parte baja -->
+    <div id="chat-widget-shortcuts" class="chat-shortcuts">
+      <button onclick="sendShortcut('Necesito soporte')">Necesito soporte</button>
+      <button onclick="sendShortcut('Información de servicios')">Información de servicios</button>
+      <button onclick="sendShortcut('Quiero un agente de IA gratis')">Quiero un agente de IA gratis</button>
+      <button onclick="sendShortcut('¿Qué puedes hacer?')">¿Qué puedes hacer?</button>
+    </div>
+
+    <div id="chat-widget-footer">
+      <input type="text" id="chat-widget-input" placeholder="Escribe aquí…"/>
+      <button id="chat-widget-send">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    window.ChatWidgetConfig = {
+      webhook: {
+        url: 'https://n8n.sedicom.es/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat',
+        route: 'general'
+      }
+    };
+
+    function saveConversation(m){ sessionStorage.setItem('chatConversation', JSON.stringify(m)); }
+    function loadConversation(){ return JSON.parse(sessionStorage.getItem('chatConversation')||'[]'); }
+
+    const scuts   = document.getElementById('chat-widget-shortcuts'),
+          titleEl = document.getElementById('chat-widget-title'),
+          chatBody= document.getElementById('chat-widget-body'),
+          inputEl = document.getElementById('chat-widget-input'),
+          sendBtn = document.getElementById('chat-widget-send'),
+          greeting= document.getElementById('chat-widget-greeting');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // saludo solo primera visita
+      if (localStorage.getItem('chatGreetingHidden')) {
+        greeting.style.display = 'none';
+      }
+      // cargar conversación
+      inputEl.value = '';
+      renderConversation(chatBody);
+      // shortcuts solo si conversación nueva
+      if (loadConversation().length > 0) scuts.style.display = 'none';
+    });
+
+    function closeGreeting() {
+      greeting.style.display = 'none';
+      localStorage.setItem('chatGreetingHidden','true');
+    }
+
+    function getChatId() {
+      let id = sessionStorage.getItem("chatId");
+      if (!id) {
+        id = "chat_"+Math.random().toString(36).substr(2,9);
+        sessionStorage.setItem("chatId", id);
+      }
+      return id;
+    }
+
+    function hideShortcuts() {
+      scuts.style.display = 'none';
+    }
+
+    function sendShortcut(text) {
+      hideShortcuts();
+      inputEl.value = text;
+      sendMessage();
+    }
+
+    function renderConversation(body) {
+      const msgs = loadConversation();
+      body.innerHTML =
+        '<p style="margin-bottom:20px;color:#fff;background:#00416A;'+
+        'padding:12px 16px;border-radius:12px;">'+
+        '<strong>Hola 👋🏻, ¿puedo ayudarte?</strong></p>';
+      msgs.forEach(m => {
+        const p = document.createElement('p');
+        if (m.type==='user') {
+          p.textContent = m.text; p.style.color="#333"; p.style.background="#F1F1F1";
+        } else {
+          p.innerHTML = m.html; p.style.color="#fff"; p.style.background="#00416A"; p.style.marginTop="10px";
+        }
+        body.appendChild(p);
+      });
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function sendMessage() {
+      const txt = inputEl.value.trim();
+      if (!txt) return;
+      const conv = loadConversation();
+      conv.push({type:'user', text:txt});
+      saveConversation(conv);
+      const up = document.createElement('p');
+      up.textContent=txt; up.style.color="#333"; up.style.background="#F1F1F1";
+      chatBody.appendChild(up);
+      inputEl.value='';
+
+      const typing = document.createElement('div');
+      typing.className='typing-indicator';
+      typing.innerHTML='<span></span><span class="typing-dots"><span></span><span></span><span></span></span>';
+      chatBody.appendChild(typing);
+      chatBody.scrollTop=chatBody.scrollHeight;
+
+      fetch(window.ChatWidgetConfig.webhook.url,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({chatId:getChatId(),message:txt,route:window.ChatWidgetConfig.webhook.route})
+      })
+      .then(r=>r.json())
+      .then(data=>{
+        if (typing.parentNode) chatBody.removeChild(typing);
+        const botP=document.createElement('p');
+        const html=data.output||'Lo siento, no entendí eso.';
+        conv.push({type:'bot',html}); saveConversation(conv);
+        botP.innerHTML=html;
+        botP.style.color="#fff"; botP.style.background="#00416A"; botP.style.marginTop="10px";
+        chatBody.appendChild(botP);
+        chatBody.scrollTop=chatBody.scrollHeight;
+      })
+      .catch(err=>{
+        console.error(err);
+        if (typing.parentNode) chatBody.removeChild(typing);
+        const errP=document.createElement('p');
+        errP.textContent='Lo siento, hubo un error.';
+        errP.style.color="#fff"; errP.style.background="#FF0000";
+        chatBody.appendChild(errP);
+        chatBody.scrollTop=chatBody.scrollHeight;
+      });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    inputEl.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
+
+    document.getElementById("chat-widget-button").addEventListener("click", ()=>{
+      document.getElementById("chat-widget-container").style.display="flex";
+      document.getElementById("chat-widget-button").style.display="none";
+      titleEl.textContent="Mia";
+      closeGreeting();
+      if (loadConversation().length>0) hideShortcuts();
+    });
+
+    function closeChatWidget() {
+      document.getElementById("chat-widget-container").style.display="none";
+      document.getElementById("chat-widget-button").style.display="flex";
+      titleEl.textContent="Asistente IA Sedicom";
+      hideShortcuts();
+    }
+  </script>
+</body>
+</html>
