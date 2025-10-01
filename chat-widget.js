@@ -67,8 +67,7 @@
   `;
   document.body.appendChild(greeting);
   const closeGreetingBtn = greeting.querySelector('.greeting-close');
-  closeGreetingBtn.onclick = ()=>{ greeting.style.display='none'; localStorage.setItem('chatGreetingHidden','true'); };
-  if(localStorage.getItem('chatGreetingHidden')) greeting.style.display='none';
+  closeGreetingBtn.onclick = () => { greeting.style.display='none'; localStorage.setItem('chatGreetingHidden','true'); };
 
   /*** CHAT CONTAINER ***/
   const chatContainer = document.createElement('div');
@@ -124,39 +123,4 @@
   function sendMessage(){
     const txt=inputEl.value.trim(); if(!txt) return;
     const conv=loadConversation(); conv.push({type:'user',text:txt}); saveConversation(conv);
-    const up=document.createElement('p'); up.textContent=txt; up.style.color="#333"; up.style.background="#F1F1F1"; chatBody.appendChild(up); inputEl.value='';
-    const typing=document.createElement('div'); typing.className='typing-indicator';
-    typing.innerHTML='<span></span><span class="typing-dots"><span></span><span></span><span></span></span>'; chatBody.appendChild(typing); chatBody.scrollTop=chatBody.scrollHeight;
-
-    fetch(cfg.webhook?.url||'',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chatId:getChatId(),message:txt,route:cfg.webhook?.route||'general'})})
-      .then(r=>r.json())
-      .then(data=>{
-        if(typing.parentNode) chatBody.removeChild(typing);
-        const botP=document.createElement('p'); botP.innerHTML=data.output||'Lo siento, no entendí eso.';
-        botP.style.color="#fff"; botP.style.background=branding.primaryColor||'#00416A'; botP.style.marginTop="10px";
-        chatBody.appendChild(botP);
-        conv.push({type:'bot',html:botP.innerHTML}); saveConversation(conv);
-        chatBody.scrollTop=chatBody.scrollHeight;
-      })
-      .catch(err=>{
-        console.error(err);
-        if(typing.parentNode) chatBody.removeChild(typing);
-        const errP=document.createElement('p'); errP.textContent='Lo siento, hubo un error.';
-        errP.style.color="#fff"; errP.style.background="#FF0000"; chatBody.appendChild(errP); chatBody.scrollTop=chatBody.scrollHeight;
-      });
-  }
-
-  sendBtn.addEventListener('click',sendMessage);
-  inputEl.addEventListener('keypress',e=>{ if(e.key==='Enter') sendMessage(); });
-
-  /*** BOTÓN FLOTAANTE ***/
-  const widgetButton=document.createElement('button'); widgetButton.id='chat-widget-button'; widgetButton.textContent='Habla con Mia';
-  widgetButton.onclick=()=>{
-    chatContainer.style.display='flex'; widgetButton.style.display='none'; renderConversation();
-    scutsContainer.style.display=(shortcuts.length>0)?'flex':'none';
-    greeting.style.display='none'; localStorage.setItem('chatGreetingHidden','true');
-  };
-  document.body.appendChild(widgetButton);
-
-  closeBtn.onclick=()=>{ chatContainer.style.display='none'; widgetButton.style.display='flex'; scutsContainer.style.display='none'; };
-})();
+    const up=document.createElement('p'); up.textContent=txt; up.style.color="#333"; up.style
