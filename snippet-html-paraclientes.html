@@ -1,22 +1,106 @@
+<!-- 
+  ============================================
+  CHAT WIDGET - SNIPPET DE INTEGRACIÓN
+  ============================================
+  
+  Copia este código completo y pégalo justo antes 
+  del cierre </body> en tu página web
+-->
+
 <script>
-  window.ChatWidgetConfig={
-    webhook:{
-      url:'https://n8n.miempresa.com/webhook/xyz',
-      route:'general'
+  // Configuración del Chat Widget
+  window.ChatWidgetConfig = {
+    branding: {
+      title: 'Asistente IA Sedicom',
+      logo: 'https://cloud.sedicom.es/s/wTQozTH3inMKSHQ/preview',
+      primaryColor: '#00416A',
+      secondaryColor: '#005a87',
+      greeting: '👋 Soy Mia, asistente de IA de Sedicom. ¿Puedo ayudarte?',
+      buttonText: 'Habla con Mia'
     },
-    branding:{
-      title:"Asistente IA Acme",
-      logo:"https://acme.com/logo.png",
-      primaryColor:"#00416A",
-      secondaryColor:"#005a87",
-      greeting:"👋 Soy tu asistente virtual, ¿cómo puedo ayudarte?"
-    },
-    shortcuts:[
-      "Necesito soporte",
-      "Información de servicios",
-      "Quiero un demo",
-      "¿Qué puedes hacer?"
-    ]
+    shortcuts: [
+      'Necesito soporte',
+      'Información de servicios',
+      'Quiero un agente de IA gratis',
+      '¿Qué puedes hacer?'
+    ],
+    webhook: {
+      url: 'https://n8n.sedicom.es/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat',
+      route: 'general'
+    }
   };
 </script>
+
+<!-- Carga del widget desde CDN -->
 <script src="https://cdn.jsdelivr.net/gh/sedicom/ai-chat-widget@main/chat-widget.js"></script>
+
+<!-- 
+  ============================================
+  PERSONALIZACIÓN RÁPIDA
+  ============================================
+  
+  COLORES:
+  - primaryColor: Color principal del widget
+  - secondaryColor: Color para estados hover
+  
+  TEXTOS:
+  - title: Título que aparece en el header
+  - greeting: Mensaje de bienvenida en la burbuja
+  - buttonText: Texto del botón flotante
+  
+  SHORTCUTS:
+  - Array de mensajes rápidos que el usuario puede seleccionar
+  
+  WEBHOOK:
+  - url: Endpoint que recibirá los mensajes
+  - route: Identificador de ruta/canal
+  
+  
+  ============================================
+  EJEMPLO ALTERNATIVO - CLIENTE PERSONALIZADO
+  ============================================
+-->
+
+<!-- 
+<script>
+  window.ChatWidgetConfig = {
+    branding: {
+      title: 'Soporte Mi Empresa',
+      logo: 'https://miempresa.com/logo.png',
+      primaryColor: '#2563eb',
+      secondaryColor: '#1d4ed8',
+      greeting: '¡Hola! ¿En qué podemos ayudarte hoy?',
+      buttonText: 'Ayuda'
+    },
+    shortcuts: [
+      'Contactar ventas',
+      'Soporte técnico',
+      'Consultar precio'
+    ],
+    webhook: {
+      url: 'https://api.miempresa.com/chat',
+      route: 'support'
+    }
+  };
+</script>
+<script src="https://tu-cdn.com/chat-widget.js"></script>
+-->
+
+
+<!-- 
+  ============================================
+  FORMATO DE RESPUESTA DEL WEBHOOK
+  ============================================
+  
+  Tu webhook debe recibir (POST):
+  {
+    "chatId": "chat_abc123",
+    "message": "texto del usuario",
+    "route": "general"
+  }
+  
+  Y responder con:
+  {
+    "output": "<p>Respuesta del bot con <strong>HTML</strong> permitido</p>"
+  }
+-->
