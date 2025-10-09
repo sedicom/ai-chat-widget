@@ -1,14 +1,14 @@
 /**
  * Chat Widget - Versión modular para CDN
  * Compatible con configuración white-label
- * CORREGIDO Y MEJORADO
+ * CORREGIDO Y MEJORADO CON ENLACES CLICABLES
  */
 (function() {
   'use strict';
 
   // Configuración por defecto
   const defaultConfig = {
-    debug: false, // Opción de depuración
+    debug: false,
     branding: {
       title: 'Asistente IA',
       logo: 'https://cloud.sedicom.es/s/wTQozTH3inMKSHQ/preview',
@@ -43,7 +43,13 @@
   // --- VALIDACIÓN INICIAL ---
   if (!config.webhook.url) {
     console.error('[Chat Widget Error] La URL del webhook no está configurada. El widget no se inicializará.');
-    return; // Detener la ejecución si no hay URL de webhook
+    return;
+  }
+
+  // --- NUEVO: FUNCIÓN PARA CONVERTIR URLs EN ENLACES CLICABLES ---
+  function linkify(text) {
+    const urlRegex = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+    return text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
   }
 
   function deepMerge(target, source) {
@@ -93,7 +99,7 @@
       }
     } catch (e) {
       console.error('[Chat Widget Error] No se pudo gestionar el chatId:', e);
-      id = 'chat_' + Math.random().toString(36).substr(2, 9); // Fallback sin persistencia
+      id = 'chat_' + Math.random().toString(36).substr(2, 9);
     }
     return id;
   }
@@ -153,6 +159,13 @@
         border-radius: 12px;
         font-size: 14px; line-height: 1.4;
         word-wrap: break-word;
+      }
+
+      /* NUEVO: Estilo para los enlaces dentro de los mensajes del bot */
+      #chat-widget-body p a {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: 600;
       }
       
       .chat-shortcuts {
@@ -388,7 +401,7 @@
         p.style.color = '#333';
         p.style.background = '#F1F1F1';
       } else {
-        p.innerHTML = m.html;
+        p.innerHTML = m.html; // Aquí ya se guardó el HTML con enlaces
         p.style.color = '#fff';
         p.style.background = config.branding.primaryColor;
         p.style.marginTop = '10px';
@@ -438,7 +451,6 @@
     .then(response => {
       debugLog('Respuesta del servidor recibida:', response);
       if (!response.ok) {
-        // Lanza un error si la respuesta no es exitosa (ej. 404, 500)
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.json();
@@ -448,11 +460,15 @@
       if (typing.parentNode) chatBody.removeChild(typing);
       
       const botP = document.createElement('p');
-      const html = data.output || 'Lo siento, no entendí eso. ¿Puedes reformular la pregunta?';
-      conv.push({ type: 'bot', html });
+      let html = data.output || 'Lo siento, no entendí eso. ¿Puedes reformular la pregunta?';
+      
+      // --- MODIFICADO: Aplicar la función linkify aquí ---
+      html = linkify(html);
+      
+      conv.push({ type: 'bot', html: html }); // Guardar el HTML con enlaces
       saveConversation(conv);
       
-      botP.innerHTML = html;
+      botP.innerHTML = html; // Renderizar el HTML con enlaces
       botP.style.color = '#fff';
       botP.style.background = config.branding.primaryColor;
       botP.style.marginTop = '10px';
@@ -466,7 +482,7 @@
       const errP = document.createElement('p');
       errP.textContent = 'Lo siento, no puedo conectar con el servidor en este momento. Por favor, inténtalo más tarde.';
       errP.style.color = '#fff';
-      errP.style.background = '#d9534f'; // Color de error rojo
+      errP.style.background = '#d9534f';
       chatBody.appendChild(errP);
       chatBody.scrollTop = chatBody.scrollHeight;
     });
@@ -527,13 +543,11 @@
       const sendBtn = document.getElementById('chat-widget-send');
       const shortcuts = document.getElementById('chat-widget-shortcuts');
       
-      // Verificar que todos los elementos existan antes de añadir listeners
       if (!greeting || !chatBody || !inputEl || !sendBtn || !shortcuts) {
         console.error('[Chat Widget Error] No se encontraron todos los elementos necesarios en el DOM.');
         return;
       }
 
-      // Ocultar saludo si ya fue visto
       if (localStorage.getItem('chatGreetingHidden')) {
         greeting.style.display = 'none';
       }
@@ -544,7 +558,6 @@
         shortcuts.style.display = 'none';
       }
       
-      // Event listeners
       document.querySelector('#chat-widget-greeting .greeting-close').addEventListener('click', closeGreeting);
       document.getElementById('chat-widget-button').addEventListener('click', openWidget);
       document.getElementById('chat-widget-close').addEventListener('click', closeWidget);
@@ -569,7 +582,6 @@
     }
   }
 
-  // Iniciar cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
