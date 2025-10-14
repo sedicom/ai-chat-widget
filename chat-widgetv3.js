@@ -1,6 +1,12 @@
 // Chat Widget Script
 (function() {
-    // Create and inject styles
+    // Load DOMPurify for HTML sanitization (opcional pero recomendado para seguridad)
+    const purifyScript = document.createElement('script');
+    purifyScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js';
+    purifyScript.async = true;
+    document.head.appendChild(purifyScript);
+
+    // Create and inject styles (incluye CSS original + estilos para enlaces como botones)
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
@@ -9,7 +15,6 @@
             --chat--color-font: var(--n8n-chat-font-color, #333333);
             font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
-
         .n8n-chat-widget .chat-container {
             position: fixed;
             bottom: 20px;
@@ -25,17 +30,14 @@
             overflow: hidden;
             font-family: inherit;
         }
-
         .n8n-chat-widget .chat-container.position-left {
             right: auto;
             left: 20px;
         }
-
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
         }
-
         .n8n-chat-widget .brand-header {
             padding: 16px;
             display: flex;
@@ -44,7 +46,6 @@
             border-bottom: 1px solid rgba(133, 79, 255, 0.1);
             position: relative;
         }
-
         .n8n-chat-widget .close-button {
             position: absolute;
             right: 16px;
@@ -62,22 +63,18 @@
             font-size: 20px;
             opacity: 0.6;
         }
-
         .n8n-chat-widget .close-button:hover {
             opacity: 1;
         }
-
         .n8n-chat-widget .brand-header img {
             width: 32px;
             height: 32px;
         }
-
         .n8n-chat-widget .brand-header span {
             font-size: 18px;
             font-weight: 500;
             color: var(--chat--color-font);
         }
-
         .n8n-chat-widget .new-conversation {
             position: absolute;
             top: 50%;
@@ -88,7 +85,6 @@
             width: 100%;
             max-width: 300px;
         }
-
         .n8n-chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
@@ -96,7 +92,6 @@
             margin-bottom: 24px;
             line-height: 1.3;
         }
-
         .n8n-chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
@@ -115,33 +110,27 @@
             font-family: inherit;
             margin-bottom: 12px;
         }
-
         .n8n-chat-widget .new-chat-btn:hover {
             transform: scale(1.02);
         }
-
         .n8n-chat-widget .message-icon {
             width: 20px;
             height: 20px;
         }
-
         .n8n-chat-widget .response-text {
             font-size: 14px;
             color: var(--chat--color-font);
             opacity: 0.7;
             margin: 0;
         }
-
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
             height: 100%;
         }
-
         .n8n-chat-widget .chat-interface.active {
             display: flex;
         }
-
         .n8n-chat-widget .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -150,7 +139,6 @@
             display: flex;
             flex-direction: column;
         }
-
         .n8n-chat-widget .chat-message {
             padding: 12px 16px;
             margin: 8px 0;
@@ -160,7 +148,6 @@
             font-size: 14px;
             line-height: 1.5;
         }
-
         .n8n-chat-widget .chat-message.user {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -168,7 +155,6 @@
             box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
             border: none;
         }
-
         .n8n-chat-widget .chat-message.bot {
             background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
@@ -176,7 +162,20 @@
             align-self: flex-start;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
-
+        .n8n-chat-widget .chat-message.bot a {
+            display: inline-block;
+            background: var(--chat--color-primary);
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 4px;
+            transition: background 0.2s;
+        }
+        .n8n-chat-widget .chat-message.bot a:hover {
+            background: var(--chat--color-secondary);
+        }
         .n8n-chat-widget .chat-input {
             padding: 16px;
             background: var(--chat--color-background);
@@ -184,7 +183,6 @@
             display: flex;
             gap: 8px;
         }
-
         .n8n-chat-widget .chat-input textarea {
             flex: 1;
             padding: 12px;
@@ -196,12 +194,10 @@
             font-family: inherit;
             font-size: 14px;
         }
-
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
             opacity: 0.6;
         }
-
         .n8n-chat-widget .chat-input button {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -213,11 +209,9 @@
             font-family: inherit;
             font-weight: 500;
         }
-
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
-
         .n8n-chat-widget .chat-toggle {
             position: fixed;
             bottom: 20px;
@@ -236,29 +230,24 @@
             align-items: center;
             justify-content: center;
         }
-
         .n8n-chat-widget .chat-toggle.position-left {
             right: auto;
             left: 20px;
         }
-
         .n8n-chat-widget .chat-toggle:hover {
             transform: scale(1.05);
         }
-
         .n8n-chat-widget .chat-toggle svg {
             width: 24px;
             height: 24px;
             fill: currentColor;
         }
-
         .n8n-chat-widget .chat-footer {
             padding: 8px;
             text-align: center;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
         }
-
         .n8n-chat-widget .chat-footer a {
             color: var(--chat--color-primary);
             text-decoration: none;
@@ -267,11 +256,9 @@
             transition: opacity 0.2s;
             font-family: inherit;
         }
-
         .n8n-chat-widget .chat-footer a:hover {
             opacity: 1;
         }
-
         .n8n-chat-widget .typing-indicator {
             display: flex;
             align-items: center;
@@ -284,7 +271,6 @@
             margin: 8px 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
-
         .n8n-chat-widget .typing-dot {
             width: 8px;
             height: 8px;
@@ -292,15 +278,12 @@
             background: var(--chat--color-primary);
             animation: typing-bounce 1.4s infinite ease-in-out;
         }
-
         .n8n-chat-widget .typing-dot:nth-child(1) {
             animation-delay: -0.32s;
         }
-
         .n8n-chat-widget .typing-dot:nth-child(2) {
             animation-delay: -0.16s;
         }
-
         @keyframes typing-bounce {
             0%, 80%, 100% {
                 transform: scale(0.8);
@@ -382,19 +365,32 @@
         if (typingEl) typingEl.remove();
     }
 
-    // Character-by-character typing animation
+    // Character-by-character typing animation (adaptado para HTML)
     async function typeMessage(message, messageElement, speed = 15) {
-        const text = message;
+        // Sanitiza el mensaje si DOMPurify está disponible
+        const safeMessage = window.DOMPurify
+            ? DOMPurify.sanitize(message, {
+                  ALLOWED_TAGS: ['a', 'strong', 'em', 'p', 'div', 'br'],
+                  ALLOWED_ATTR: ['href', 'style', 'target', 'onmouseover', 'onmouseout']
+              })
+            : message;
+
+        // Para typing: revela texto plano primero, luego renderiza HTML al final
+        const textOnly = safeMessage.replace(/<[^>]*>/g, ''); // Extrae texto sin tags para typing
         messageElement.textContent = '';
-        
-        for (let i = 0; i < text.length; i++) {
-            messageElement.textContent += text[i];
+
+        for (let i = 0; i < textOnly.length; i++) {
+            messageElement.textContent += textOnly[i];
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             await new Promise(resolve => setTimeout(resolve, speed));
         }
+
+        // Al final, setea innerHTML para renderizar HTML (enlaces clicables)
+        await new Promise(resolve => setTimeout(resolve, 200)); // Pequeño delay para efecto
+        messageElement.innerHTML = safeMessage;
     }
 
-    // Enhanced message sending with natural delays
+    // Enhanced message sending with natural delays (adaptado para innerHTML)
     async function sendMessage(message) {
         const messageData = {
             action: "sendMessage",
@@ -439,7 +435,7 @@
                 botMessageDiv.className = 'chat-message bot';
                 messagesContainer.appendChild(botMessageDiv);
                 
-                // Type out the response character by character
+                // Type out the response (maneja HTML)
                 typeMessage(botResponse, botMessageDiv, 15);
             }, 1000);
             
@@ -548,7 +544,16 @@
 
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
+            
+            // Sanitiza y usa innerHTML directamente (sin typing para bienvenida)
+            const safeResponse = window.DOMPurify
+                ? DOMPurify.sanitize(Array.isArray(responseData) ? responseData[0].output : responseData.output, {
+                      ALLOWED_TAGS: ['a', 'strong', 'em', 'p', 'div', 'br'],
+                      ALLOWED_ATTR: ['href', 'style', 'target', 'onmouseover', 'onmouseout']
+                  })
+                : Array.isArray(responseData) ? responseData[0].output : responseData.output;
+            
+            botMessageDiv.innerHTML = safeResponse;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
@@ -588,4 +593,11 @@
             chatContainer.classList.remove('open');
         });
     });
+
+    // Expose API methods (opcional)
+    window.N8NChatWidget = {
+        maximize: () => chatContainer.classList.add('open'),
+        minimize: () => chatContainer.classList.remove('open'),
+        sendMessage: (msg) => sendMessage(msg)
+    };
 })();
