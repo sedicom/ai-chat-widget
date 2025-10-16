@@ -18,7 +18,7 @@
       primaryColor: '#00416A',
       secondaryColor: '#005a87',
       greeting: '👋 Soy tu asistente de IA. ¿Puedo ayudarte?',
-      buttonText: '¿Necesitas ayuda?',
+      buttonText: 'Habla conmigo',
       poweredBy: {
         link: 'https://www.sedicom.es' 
         // El texto "Powered by Sedicom" no es configurable
@@ -649,7 +649,11 @@
       
       const botP = document.createElement('p');
       const safeHtml = window.DOMPurify ? DOMPurify.sanitize(data.output || 'Lo siento, no entendí eso.') : data.output || 'Lo siento, no entendí eso.';
+      
       const conv = loadConversation();
+      // Si la conversación solo tiene el mensaje del usuario (longitud 1), esta es la primera respuesta del bot.
+      const isFirstResponse = conv.length === 1; 
+      
       conv.push({ type: 'bot', html: safeHtml });
       saveConversation(conv);
       
@@ -657,6 +661,12 @@
       botP.setAttribute('role', 'bot-message');
       chatBody.appendChild(botP);
       chatBody.scrollTop = chatBody.scrollHeight;
+
+      // --- CORRECCIÓN AQUÍ ---
+      // Ocultar los atajos después de la primera respuesta del bot para limpiar la interfaz.
+      if (isFirstResponse) {
+        hideShortcuts();
+      }
     })
     .catch(err => {
       clearTimeout(timeoutId);
@@ -682,7 +692,9 @@
 
   function hideShortcuts() {
     const shortcuts = document.getElementById('chat-widget-shortcuts');
-    shortcuts.style.display = 'none';
+    if (shortcuts) {
+        shortcuts.style.display = 'none';
+    }
   }
 
   function openWidget() {
