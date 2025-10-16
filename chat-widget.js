@@ -18,7 +18,7 @@
       primaryColor: '#00416A',
       secondaryColor: '#005a87',
       greeting: '👋 Soy tu asistente de IA. ¿Puedo ayudarte?',
-      buttonText: 'Habla conmigo',
+      buttonText: '¿Necesitas ayuda?',
       poweredBy: {
         link: 'https://www.sedicom.es' 
         // El texto "Powered by Sedicom" no es configurable
