@@ -20,8 +20,8 @@
       greeting: '👋 Soy tu asistente de IA. ¿Puedo ayudarte?',
       buttonText: 'Habla conmigo',
       poweredBy: {
-        text: 'Powered by Sedicom', // Ahora el texto es configurable
-        link: 'https://www.sedicom.es' 
+        text: 'Consigue un Agente de IA Gratis', 
+        link: 'https://sedicom.es/agente-de-ia-para-faqs-gratis' 
       }
     },
     shortcuts: [
