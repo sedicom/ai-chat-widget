@@ -1,92 +1,60 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página con Widget de Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        p {
-            line-height: 1.6;
-            color: #666;
-        }
-        .info-box {
-            background-color: #f0f7ff;
-            border-left: 4px solid #4a90e2;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Página de Ejemplo con Widget de Chat</h1>
-        
-        <p>Esta es una página HTML simple que demuestra cómo integrar un widget de chat cargado desde local.</p>
-        
-        <div class="info-box">
-            <p><strong>Nota:</strong> El widget de chat aparecerá en la esquina inferior derecha de la página como un botón flotante. Haz clic en él para abrir la ventana de chat.</p>
-        </div>
-        
-        <h2>Características del Widget</h2>
-        <ul>
-            <li>Interfaz de chat intuitiva y moderna</li>
-            <li>Animaciones de escritura para respuestas del bot</li>
-            <li>Personalizable mediante configuración</li>
-            <li>Integración con n8n a través de webhooks</li>
-        </ul>
-        
-        <h2>Configuración del Widget</h2>
-        <p>El widget está configurado para conectarse al siguiente webhook:</p>
-        <p><code>https://n8n0.sedicom.es/webhook/bf0bdec6-995b-4a6c-bb8c-cf2b613948ab/chat</code></p>
-    </div>
 
-    <!-- Configuración del Widget -->
-    <script>
-        window.ChatWidgetConfig = {
-            webhook: {
-                url: 'https://n8n0.sedicom.es/webhook/bf0bdec6-995b-4a6c-bb8c-cf2b613948ab/chat',
-                route: 'chat'
-            },
-            branding: {
-                logo: 'https://cloud.sedicom.es/s/wTQozTH3inMKSHQ/preview',
-                name: 'Asistente Virtual',
-                welcomeText: '¡Hola! ¿En qué puedo ayudarte hoy?',
-                responseTimeText: 'Normalmente respondemos en unos pocos segundos.',
-                poweredBy: {
-                    text: 'Powered by Sedicom',
-                    link: 'https://sedicom.es/'
-                }
-            },
-            style: {
-                primaryColor: '#854fff',
-                secondaryColor: '#6b3fd4',
-                position: 'right',
-                backgroundColor: '#ffffff',
-                fontColor: '#333333'
-            }
-        };
-    </script>
-    
-    <!-- Cargar el Widget desde Local -->
-    <script src="https://cdn.jsdelivr.net/gh/sedicom/ai-chat-widget@main/chat-widget.js"></script>
-</body>
-</html>
+<!-- ================================================================= -->
+<!-- WIDGET DE CHAT - CONFIGURACIÓN PERSONALIZABLE -->
+<!-- ================================================================= -->
+
+<script>
+window.ChatWidgetConfig = {
+// --------------------------------------------------------------
+// 1. ATAJOS (SHORTCUTS) - MODIFICA LOS BOTONES DE ACCESO RÁPIDO
+// --------------------------------------------------------------
+// Edita, añade o elimina las frases del siguiente array.
+// Estos botones aparecerán cuando el usuario abra el chat por primera vez.
+shortcuts: [
+'Necesito soporte técnico',
+'Información de productos',
+'Agendar una reunión'
+],
+
+// --------------------------------------------------------------
+// 2. CONFIGURACIÓN DEL WEBHOOK (NO MODIFICAR)
+// --------------------------------------------------------------
+webhook: {
+url: 'https://n8n0.sedicom.es/webhook/bf0bdec6-995b-4a6c-bb8c-cf2b613948ab/chat',
+route: 'chat'
+},
+
+// --------------------------------------------------------------
+// 3. IMAGEN Y TEXTO DEL WIDGET
+// --------------------------------------------------------------
+branding: {
+// Cambia esta URL por la imagen de tu logo.
+logo: 'https://cloud.sedicom.es/s/wTQozTH3inMKSHQ/preview',
+
+// Personaliza el nombre del asistente y los mensajes de bienvenida.
+name: 'Asistente Virtual',
+welcomeText: '¡Hola! ¿En qué puedo ayudarte hoy?',
+responseTimeText: 'Normalmente respondemos en unos pocos segundos.',
+
+},
+
+// --------------------------------------------------------------
+// 4. COLORES Y ESTILOS DEL WIDGET
+// --------------------------------------------------------------
+// Modifica estos colores para que el widget combine con tu marca.
+// ¡Importante! 'primaryColor' también define el color de los botones
+// que el bot envía en sus respuestas (ej: "Agendar café").
+style: {
+primaryColor: '#8ED1FC', // Color principal (botones, etc.)
+secondaryColor: '#6b3fd4', // Color secundario (efectos hover)
+position: 'right', // Posición del widget: 'right' o 'left'
+backgroundColor: '#ffffff', // Color de fondo de la ventana de chat
+fontColor: '#333333' // Color del texto del chat
+}
+};
+</script>
+
+<!-- ================================================================= -->
+<!-- CARGAR EL WIDGET (NO MODIFICAR ESTA LÍNEA) -->
+<!-- ================================================================= -->
+<script src="https://cdn.jsdelivr.net/gh/sedicom/ai-chat-widget@main/chat-widget.js"></script>
