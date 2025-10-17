@@ -1,5 +1,5 @@
 /**
- * Chat Widget - Versión con estilos del widget n8n, logo y footer "Powered by" (texto no modificable)
+ * Chat Widget - Versión con estilos del widget n8n, logo y footer "Powered by" (texto configurable)
  */
 (function() {
   'use strict';
@@ -20,8 +20,8 @@
       greeting: '👋 Soy tu asistente de IA. ¿Puedo ayudarte?',
       buttonText: 'Habla conmigo',
       poweredBy: {
+        text: 'Powered by Sedicom', // Ahora el texto es configurable
         link: 'https://www.sedicom.es' 
-        // El texto "Powered by Sedicom" no es configurable
       }
     },
     shortcuts: [
@@ -514,7 +514,7 @@
       </div>
       <div id="chat-widget-powered-by">
         <a href="${config.branding.poweredBy.link}" target="_blank" rel="noopener noreferrer">
-          Powered by Sedicom
+          ${config.branding.poweredBy.text}
         </a>
       </div>
     `;
@@ -523,6 +523,32 @@
     container.appendChild(button);
     container.appendChild(widget);
     document.body.appendChild(container);
+  }
+
+  // Función para aplicar estilos a los enlaces en los mensajes del bot
+  function applyLinkStyles(element) {
+    const links = element.querySelectorAll('a');
+    links.forEach(link => {
+      // Aplicar estilos directamente para asegurar que se usen los colores configurados
+      link.style.display = 'inline-block';
+      link.style.background = config.branding.primaryColor;
+      link.style.color = 'white';
+      link.style.padding = '10px 16px';
+      link.style.textDecoration = 'none';
+      link.style.borderRadius = '6px';
+      link.style.fontSize = '14px';
+      link.style.margin = '4px';
+      link.style.transition = 'background 0.2s';
+      
+      // Añadir eventos hover
+      link.addEventListener('mouseenter', function() {
+        this.style.background = config.branding.secondaryColor;
+      });
+      
+      link.addEventListener('mouseleave', function() {
+        this.style.background = config.branding.primaryColor;
+      });
+    });
   }
 
   // Renderizado de conversación mejorado
@@ -546,6 +572,8 @@
           const safeHtml = window.DOMPurify ? DOMPurify.sanitize(m.html) : m.html;
           p.innerHTML = safeHtml;
           p.setAttribute('role', 'bot-message');
+          // Aplicar estilos a los enlaces
+          applyLinkStyles(p);
         }
         body.appendChild(p);
       });
@@ -583,6 +611,8 @@
       
       botP.innerHTML = safeHtml;
       botP.setAttribute('role', 'bot-message');
+      // Aplicar estilos a los enlaces
+      applyLinkStyles(botP);
       chatBody.appendChild(botP);
       chatBody.scrollTop = chatBody.scrollHeight;
 
@@ -659,6 +689,8 @@
       
       botP.innerHTML = safeHtml;
       botP.setAttribute('role', 'bot-message');
+      // Aplicar estilos a los enlaces
+      applyLinkStyles(botP);
       chatBody.appendChild(botP);
       chatBody.scrollTop = chatBody.scrollHeight;
 
