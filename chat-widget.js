@@ -337,6 +337,7 @@
         z-index: 999;
         transition: transform 0.3s;
         display: flex;
+        overflow: hidden;
         align-items: center;
         justify-content: center;
       }
