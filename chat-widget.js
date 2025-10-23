@@ -326,9 +326,9 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        width: 60px;
-        height: 60px;
-        border-radius: 30px;
+        width: 75px;
+        height: 75px;
+        border-radius: 40px;
         background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
         color: white;
         border: none;
@@ -337,7 +337,6 @@
         z-index: 999;
         transition: transform 0.3s;
         display: flex;
-        overflow: hidden;
         align-items: center;
         justify-content: center;
       }
